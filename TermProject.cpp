@@ -4,6 +4,7 @@
 using namespace std;
 #include <unordered_map>
 #include <string>
+#include <fstream>
 
 class DataHolder {
 public:
@@ -122,18 +123,33 @@ void HashTable::printHashTable() {
 }
 
 int main() {
-    HashTable hashTable(10);
+    // test case: SUCCESS
+    //HashTable hashTable(10);
 
-    DataHolder data1("file1");
-    DataHolder data2("file2");
-    DataHolder data3("file3");
-    DataHolder data4("file1");
+    //DataHolder data1("file1");
+    //DataHolder data2("file2");
+    //DataHolder data3("file3");
+    //DataHolder data4("file1");
 
-    hashTable.insert(data1);
-    hashTable.insert(data2);
-    hashTable.insert(data3);
-    hashTable.insert(data4);
+    //hashTable.insert(data1);
+    //hashTable.insert(data2);
+    //hashTable.insert(data3);
+    //hashTable.insert(data4);
 
-    hashTable.printHashTable();
+    //hashTable.printHashTable();
+
+    // read file 
+    // until end of file, read line by line
+    // each line get filename, create dataholder object, insert into hashtable
+
+    // Read from the text file
+    string myText;
+    ifstream MyReadFile("access_log");
+
+    // Use a while loop together with the getline() function to read the file line by line
+    while (getline(MyReadFile, myText)) {
+        // Output the text from the file
+        cout << myText;
+    }
     return 0;
 }
