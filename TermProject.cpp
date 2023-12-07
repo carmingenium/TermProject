@@ -140,16 +140,29 @@ int main() {
 
     // read file 
     // until end of file, read line by line
-    // each line get filename, create dataholder object, insert into hashtable
+    
 
     // Read from the text file
-    string myText;
+    string newLine;
     ifstream MyReadFile("access_log");
 
     // Use a while loop together with the getline() function to read the file line by line
-    while (getline(MyReadFile, myText)) {
-        // Output the text from the file
-        cout << myText;
+    while (getline(MyReadFile, newLine)) {
+        // each line get filename, create dataholder object, insert into hashtable
+        // first extract filename from line
+
+        // there are three different forms of information in the log file
+        // average case is that file name is after GET
+        // second case is that file name is after local
+        // third case is that file name is after everything in remote situation
+
+
+        // PSEUDOCODE
+        // first, check if GET is in the line
+        // if it is, get file name after get.
+        // if not, check if local is in the line
+        // if it is, get file name after local.
+        // if not, get file name after remote.
     }
     return 0;
 }
