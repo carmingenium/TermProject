@@ -69,12 +69,12 @@ public:
 
 private:
     // Calculates the hash value for a given key
-    static inline int hash(const string& key) {
+    int hash(const string& key) {
         int hashValue = 0;
         for (char c : key) {
             hashValue += c;
         }
-        return hashValue % this -> capacity; // this problem is because of static function, find a workaround the function
+        return hashValue % capacity; // this problem is because of static function, find a workaround the function
     }
 
     // Retrieves the hash entry for a given key
