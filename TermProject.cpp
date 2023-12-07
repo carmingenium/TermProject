@@ -2,233 +2,138 @@
 
 #include <iostream>
 using namespace std;
-
-//Task1: You must implement a hash table as your main data structure.You should implement your own hash table, 
-//you cannot use a hash table implementation from a library.
-//This implementation should be a proper C++ class.
-//You should use this hash table for storing the filenames and the corresponding number of visits of that page(filename).
-//There is no restriction on the choice of the hash function and collision resolution method.
-//
-//Task2 : Use unordered_map data structure for storing the filenames and the corresponding number of visits.
-//Task 3 : In order to compare the efficiency of your own hash table implementation and unordered_map, write a program which measures the total time it takes starting from reading access_log file until the end of printing the top 10 most visited pages.There is no need to ask user input.
-//Note1 : For finding the top 10 most visited pages try to find an efficient method.Hint : you can use the heap data structures.
-//Note2 : Other than the hash table implementation, you can use C++ standard library for your needs.
-
-
-#include <iostream>
 #include <unordered_map>
 #include <string>
 
-// Define a custom class MyClass
-class MyClass {
+class DataHolder {
 public:
-    int id;
-    string name;
-    MyClass(int id, string name) : id{ id }, name{ name } {}
-};
-
-// Define a struct to represent a hash table entry
-struct HashEntry {
-    MyClass value;
-    HashEntry* next;
-};
-
-// Define a class to represent the hash table
-class HashMap {
+    DataHolder() {
+		fileName = "";
+        numberOfVisit = 0;
+    }
+    DataHolder(string name) {
+        fileName = name;
+		numberOfVisit = 1;
+    }
+    int getVisit() {
+		return numberOfVisit;
+	}
+    void setVisit(int visit) {
+        numberOfVisit = visit;
+    }
+    string getName() {
+        return fileName;
+    }
+    void setName(string name) {
+		fileName = name;
+	}
 private:
-    // Mapping from keys to hash entries
-    unordered_map<string, HashEntry*> table;
+    string fileName;
+    int numberOfVisit;
+};
 
-    // Size of the hash table
-    int capacity;
+// hash table with linear probing
+class HashTable {
+public:
+    HashTable(int size);
+    int hashFunction(string name);
+    void insert(DataHolder data);
+    bool search(DataHolder data);
+    void remove(DataHolder data);
+    void printHashTable();
 
-    // Number of elements in the hash table
+private:
+    DataHolder* table;
+    int size;
     int count;
-
-public:
-    // Constructor to initialize the hash table with a given capacity
-    HashMap(int capacity = 9999) : capacity{ capacity }, count{ 0 } {}
-
-    // Returns true if the key exists in the hash table, false otherwise
-    bool containsKey(const string& key);
-
-    // Inserts a new key-value pair into the hash table
-    void insert(const string& key, const MyClass& value);
-
-    // Searches for a key in the hash table and returns its associated value
-    const MyClass* find(const string& key);
-
-    // Removes a key-value pair from the hash table
-    void remove(const string& key);
-
-    // Clears all key-value pairs from the hash table
-    void clear();
-
-    // Resizes the hash table to accommodate more elements
-    void resize(int newCapacity);
-
-private:
-    // Calculates the hash value for a given key
-    int hash(const string& key) {
-        int hashValue = 0;
-        for (char c : key) {
-            hashValue += c;
-        }
-        return hashValue % capacity; // this problem is because of static function, find a workaround the function
-    }
-
-    // Retrieves the hash entry for a given key
-    HashEntry* getHashEntry(const string& key);
-
-    // Inserts a new hash entry into the hash table
-    void insertHashEntry(const string& key, const MyClass& value);
-
-    // Updates the next pointer of a hash entry
-    void updateNextPointer(HashEntry* entry, HashEntry* newNext);
-
-    // Removes a hash entry from the hash table
-    void removeHashEntry(HashEntry* entry);
 };
 
-// Implementation details
-bool HashMap::containsKey(const string& key) {
-    int hashValue = hash(key);
-    HashEntry* entry = table[hashValue];
-    while (entry != nullptr) {
-        if (entry->value.name == key) {
-            return true;
-        }
-        entry = entry->next;
-    }
-    return false;
-}
-
-void HashMap::insert(const string& key, const MyClass& value) {
-    int hashValue = hash(key);
-    HashEntry* entry = table[hashValue];
-    while (entry != nullptr) {
-        if (entry->value.name == key) {
-            // Key already exists, just update the value
-            entry->value = value;
-            return;
-        }
-        entry = entry->next;
-    }
-    // No matching key found, create a new hash entry
-    HashEntry* newEntry = new HashEntry{ value, nullptr };
-    table[hashValue] = newEntry;
-    count++;
-}
-
-const MyClass* HashMap::find(const string& key) {
-    int hashValue = hash(key);
-    HashEntry* entry = table[hashValue];
-    while (entry != nullptr) {
-        if (entry->value.name == key) {
-            return &entry->value;
-        }
-        entry = entry->next;
-    }
-    return nullptr;
-}
-
-void HashMap::remove(const string& key) {
-    int hashValue = hash(key);
-    HashEntry* entry = table[hashValue];
-    HashEntry* previous = nullptr;
-    while (entry != nullptr) {
-        if (entry->value.name == key) {
-            // Remove the entry
-            if (previous != nullptr) {
-                previous->next = entry->next;
-            }
-            else {
-                table[hashValue] = entry->next;
-            }
-            delete entry;
-            count--;
-            return;
-        }
-        previous = entry;
-        entry = entry->next;
-    }
-}
-
-void HashMap::clear() {
-    for (auto& entry : table) {
-        while (entry.second != nullptr) {
-            HashEntry* temp = entry.second;
-            entry.second = entry.second->next;
-            delete temp;
-        }
-    }
+HashTable::HashTable(int size) : size(size) {
+    table = new DataHolder[size];
     count = 0;
 }
 
-void HashMap::resize(int newCapacity) {
-    // Save the old table for traversal
-    unordered_map<string, HashEntry*> oldTable = table;
+// To use names as keys, convert each character to its ASCII value and add them up
+int HashTable::hashFunction(string name) {
+    int conversion = 0;
+    for (char c : name) {
+        conversion += static_cast<int>(c);
+    }
+    return conversion % size;
+}
 
-    // Reset the table to the new capacity
-    table.clear();
-    table.rehash(newCapacity);
-    capacity = newCapacity;
-    count = 0;
-
-    // Rehash all entries from the old table into the new table
-    for (auto& entry : oldTable) {
-        while (entry.second != nullptr) {
-            HashEntry* temp = entry.second;
-            entry.second = entry.second->next;
-            insertHashEntry(temp->value.name, temp->value);
-            delete temp;
+void HashTable::insert(DataHolder data) {
+    if (count == size) { // if table is full dont insert
+        cout << "table is full" << endl;
+        return;
+    }
+    // if table is not full, insert by linear probing
+    int index = hashFunction(data.getName());
+    // while table[index] is not empty ("" and null) keep probing
+    while (table[index].getName() != "") { // && table[index] != NULL !!!!!!!!!!!!!!!!!!!!!!!! delete later
+        if (table[index].getName() == data.getName()) { // if data is already in table, increment visit count
+        	table[index].setVisit(table[index].getVisit() + 1);
+        	return;
+        }
+        else {
+            index += 1;
+            if (index == size) { // if index is out of bounds, wrap around
+                index = 0;
+            }
         }
     }
+    table[index] = data;
+    count += 1;
 }
 
-HashEntry* HashMap::getHashEntry(const string& key) {
-    int hashValue = hash(key);
-    HashEntry* entry = table[hashValue];
-    while (entry != nullptr) {
-        if (entry->value.name == key) {
-            return entry;
+bool HashTable::search(DataHolder data) {
+    int index = hashFunction(data.getName());
+    while (table[index].getName() != data.getName()) {
+		index += 1;
+		if (index == size) { // if index is out of bounds, wrap around
+        	index = 0;
         }
-        entry = entry->next;
-    }
-    return nullptr;
-}
-
-void HashMap::insertHashEntry(const string& key, const MyClass& value) {
-    int hashValue = hash(key);
-    HashEntry* newEntry = new HashEntry{ value, nullptr };
-    if (table[hashValue] == nullptr) {
-        table[hashValue] = newEntry;
-    }
-    else {
-        HashEntry* entry = table[hashValue];
-        while (entry->next != nullptr) {
-            entry = entry->next;
+		if (table[index].getName() == "" ) { // if table[index] is empty, key is not in table // || table[index] == NULL !!!!!!!!!!!!!!!!!!!!! delete later
+        	return false;
         }
-        entry->next = newEntry;
-    }
-    count++;
+	}
+    return table[index].getName() == data.getName();
 }
 
-void HashMap::updateNextPointer(HashEntry* entry, HashEntry* newNext) {
-    if (entry != nullptr) {
-        entry->next = newNext;
+void HashTable::remove(DataHolder data) {
+    int index = hashFunction(data.getName());
+    table[index].setName("");
+    table[index].setVisit(0);
+    count -= 1;
+}
+
+void HashTable::printHashTable() {
+    for (int i = 0; i < size; i++) {
+        cout << i << ": ";
+        if (table[i].getName() == "") {
+            cout << "EMPTY";
+        }
+        else {
+            cout << table[i].getName() << endl;
+            cout << table[i].getVisit() << endl;
+        }
+        cout << endl;
     }
 }
 
-void HashMap::removeHashEntry(HashEntry* entry) {
-    if (entry != nullptr) {
-        delete entry;
-        count--;
-    }
-}
+int main() {
+    HashTable hashTable(10);
 
+    DataHolder data1("file1");
+    DataHolder data2("file2");
+    DataHolder data3("file3");
+    DataHolder data4("file1");
 
-int main()
-{
-    cout << "Hello World!\n";
+    hashTable.insert(data1);
+    hashTable.insert(data2);
+    hashTable.insert(data3);
+    hashTable.insert(data4);
+
+    hashTable.printHashTable();
+    return 0;
 }
