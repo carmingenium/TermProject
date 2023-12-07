@@ -9,74 +9,226 @@ using namespace std;
 //You should use this hash table for storing the filenames and the corresponding number of visits of that page(filename).
 //There is no restriction on the choice of the hash function and collision resolution method.
 //
-//Task2 : Use std::unordered_map data structure for storing the filenames and the corresponding number of visits.
-//Task 3 : In order to compare the efficiency of your own hash table implementation and std::unordered_map, write a program which measures the total time it takes starting from reading access_log file until the end of printing the top 10 most visited pages.There is no need to ask user input.
+//Task2 : Use unordered_map data structure for storing the filenames and the corresponding number of visits.
+//Task 3 : In order to compare the efficiency of your own hash table implementation and unordered_map, write a program which measures the total time it takes starting from reading access_log file until the end of printing the top 10 most visited pages.There is no need to ask user input.
 //Note1 : For finding the top 10 most visited pages try to find an efficient method.Hint : you can use the heap data structures.
 //Note2 : Other than the hash table implementation, you can use C++ standard library for your needs.
 
 
-// Implement a hash table that stores the filenames and the corresponding number of visits of that page(filename).
-// to do this, we need two classes: one for the hash table and one for the nodes in the hash table
+#include <iostream>
+#include <unordered_map>
+#include <string>
 
-template <class elemType>
-class hashT
-{
+// Define a custom class MyClass
+class MyClass {
 public:
-    void insert(int hashIndex, const elemType& rec);
-    //Function to insert an item in the hash table. The first
-    //parameter specifies the initial hash index of the item to 
-    //be inserted. The item to be inserted is specified by the 
-    //parameter rec.
-    //Postcondition: If an empty position is found in the hash
-    //   table, rec is inserted and the length is incremented by
-    //   one; otherwise, an appropriate error message is
-    //   displayed.
+    int id;
+    string name;
+    MyClass(int id, string name) : id{ id }, name{ name } {}
+};
 
-    void search(int& hashIndex, const elemType& rec, bool& found) const;
-    //Function to determine whether the item specified by the
-    //parameter rec IS IN!! the hash table. The parameter hashIndex
-    //specifies the initial hash index of rec.
-    //Postcondition: If rec is found, found is set to true and
-    //   hashIndex specifies the position where rec is found;
-    //   otherwise, found is set to false.
+// Define a struct to represent a hash table entry
+struct HashEntry {
+    MyClass value;
+    HashEntry* next;
+};
 
-    bool isItemAtEqual(int hashIndex, const elemType& rec) const;
-    //Function to determine whether the item specified by the
-    //parameter rec IS THE SAME AS!! the item in the hash table 
-    //at position hashIndex.
-    //Postcondition: Returns true if HTable[hashIndex] == rec;
-    //   otherwise, returns false.
+// Define a class to represent the hash table
+class HashMap {
+private:
+    // Mapping from keys to hash entries
+    unordered_map<string, HashEntry*> table;
 
-    void retrieve(int hashIndex, elemType& rec) const;
-    //Function to retrieve the item at position hashIndex.
-    //Postcondition: If the table has an item at position
-    //   hashIndex, it is copied into rec.
+    // Size of the hash table
+    int capacity;
 
-    void remove(int hashIndex, const elemType& rec);
-    //Function to remove an item from the hash table.
-    //Postcondition: Given the initial hashIndex, if rec is found
-    //   in the table it is removed; otherwise, an appropriate
-    //   error message is displayed.
+    // Number of elements in the hash table
+    int count;
 
-    void print() const;
-    //Function to output the data.
+public:
+    // Constructor to initialize the hash table with a given capacity
+    HashMap(int capacity = 9999) : capacity{ capacity }, count{ 0 } {}
 
-    hashT(int size = 101);
-    //constructor
-    //Postcondition: Create the arrays HTTable and indexStatusList;
-    //   initialize the array indexStatusList to 0; length = 0;
-    //   HTSize = size; and the default array size is 101.
+    // Returns true if the key exists in the hash table, false otherwise
+    bool containsKey(const string& key);
+
+    // Inserts a new key-value pair into the hash table
+    void insert(const string& key, const MyClass& value);
+
+    // Searches for a key in the hash table and returns its associated value
+    const MyClass* find(const string& key);
+
+    // Removes a key-value pair from the hash table
+    void remove(const string& key);
+
+    // Clears all key-value pairs from the hash table
+    void clear();
+
+    // Resizes the hash table to accommodate more elements
+    void resize(int newCapacity);
 
 private:
-    elemType* HTable;   //pointer to the hash table
-    int* indexStatusList;  //pointer to the array indicating the
-    //status of a position in the hash table
-    int length;    //number of items in the hash table
-    int HTSize;    //maximum size of the hash table
+    // Calculates the hash value for a given key
+    static inline int hash(const string& key) {
+        int hashValue = 0;
+        for (char c : key) {
+            hashValue += c;
+        }
+        return hashValue % this -> capacity; // this problem is because of static function, find a workaround the function
+    }
+
+    // Retrieves the hash entry for a given key
+    HashEntry* getHashEntry(const string& key);
+
+    // Inserts a new hash entry into the hash table
+    void insertHashEntry(const string& key, const MyClass& value);
+
+    // Updates the next pointer of a hash entry
+    void updateNextPointer(HashEntry* entry, HashEntry* newNext);
+
+    // Removes a hash entry from the hash table
+    void removeHashEntry(HashEntry* entry);
 };
+
+// Implementation details
+bool HashMap::containsKey(const string& key) {
+    int hashValue = hash(key);
+    HashEntry* entry = table[hashValue];
+    while (entry != nullptr) {
+        if (entry->value.name == key) {
+            return true;
+        }
+        entry = entry->next;
+    }
+    return false;
+}
+
+void HashMap::insert(const string& key, const MyClass& value) {
+    int hashValue = hash(key);
+    HashEntry* entry = table[hashValue];
+    while (entry != nullptr) {
+        if (entry->value.name == key) {
+            // Key already exists, just update the value
+            entry->value = value;
+            return;
+        }
+        entry = entry->next;
+    }
+    // No matching key found, create a new hash entry
+    HashEntry* newEntry = new HashEntry{ value, nullptr };
+    table[hashValue] = newEntry;
+    count++;
+}
+
+const MyClass* HashMap::find(const string& key) {
+    int hashValue = hash(key);
+    HashEntry* entry = table[hashValue];
+    while (entry != nullptr) {
+        if (entry->value.name == key) {
+            return &entry->value;
+        }
+        entry = entry->next;
+    }
+    return nullptr;
+}
+
+void HashMap::remove(const string& key) {
+    int hashValue = hash(key);
+    HashEntry* entry = table[hashValue];
+    HashEntry* previous = nullptr;
+    while (entry != nullptr) {
+        if (entry->value.name == key) {
+            // Remove the entry
+            if (previous != nullptr) {
+                previous->next = entry->next;
+            }
+            else {
+                table[hashValue] = entry->next;
+            }
+            delete entry;
+            count--;
+            return;
+        }
+        previous = entry;
+        entry = entry->next;
+    }
+}
+
+void HashMap::clear() {
+    for (auto& entry : table) {
+        while (entry.second != nullptr) {
+            HashEntry* temp = entry.second;
+            entry.second = entry.second->next;
+            delete temp;
+        }
+    }
+    count = 0;
+}
+
+void HashMap::resize(int newCapacity) {
+    // Save the old table for traversal
+    unordered_map<string, HashEntry*> oldTable = table;
+
+    // Reset the table to the new capacity
+    table.clear();
+    table.rehash(newCapacity);
+    capacity = newCapacity;
+    count = 0;
+
+    // Rehash all entries from the old table into the new table
+    for (auto& entry : oldTable) {
+        while (entry.second != nullptr) {
+            HashEntry* temp = entry.second;
+            entry.second = entry.second->next;
+            insertHashEntry(temp->value.name, temp->value);
+            delete temp;
+        }
+    }
+}
+
+HashEntry* HashMap::getHashEntry(const string& key) {
+    int hashValue = hash(key);
+    HashEntry* entry = table[hashValue];
+    while (entry != nullptr) {
+        if (entry->value.name == key) {
+            return entry;
+        }
+        entry = entry->next;
+    }
+    return nullptr;
+}
+
+void HashMap::insertHashEntry(const string& key, const MyClass& value) {
+    int hashValue = hash(key);
+    HashEntry* newEntry = new HashEntry{ value, nullptr };
+    if (table[hashValue] == nullptr) {
+        table[hashValue] = newEntry;
+    }
+    else {
+        HashEntry* entry = table[hashValue];
+        while (entry->next != nullptr) {
+            entry = entry->next;
+        }
+        entry->next = newEntry;
+    }
+    count++;
+}
+
+void HashMap::updateNextPointer(HashEntry* entry, HashEntry* newNext) {
+    if (entry != nullptr) {
+        entry->next = newNext;
+    }
+}
+
+void HashMap::removeHashEntry(HashEntry* entry) {
+    if (entry != nullptr) {
+        delete entry;
+        count--;
+    }
+}
 
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    cout << "Hello World!\n";
 }
