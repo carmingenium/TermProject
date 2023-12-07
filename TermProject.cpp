@@ -156,60 +156,34 @@ int main() {
 
         // PSEUDOCODE
         // first, check if GET is in the line
-        string get = "GET";
-        size_t found = newLine.find(get);
-        if (found != string::npos) { // if it is, get file name after get.
-            // get file name after get
-            char* line = new char[newLine.length() + 1];
-            strcpy(line, newLine.c_str());
-            // read until first dot (.)
-            while (*line != '.') {
-				line++;
-			}
-            // read backwards until first space
-            while (*line != ' ') {
-                line--;
-            }
-            // read forwards until first space and save it as link
-            char* link = new char[newLine.length() + 1]; 
-            int count = -1;
-            do {
-                count++;
-				line++;
-                link[count] = *line;
-			} while (*line != ' ' && *line != '\0');
-            link--;
-            link[count]= '\0';
-            
-            string linkString(link);
-            // create dataholder object
-            DataHolder data(linkString);
-			// insert into hashtable
-            hashTable.insert(data);
+
+        // get file name after get
+        char* line = new char[newLine.length() + 1];
+        strcpy(line, newLine.c_str());
+        // read until first dot (.)
+        while (*line != '.') {
+			line++;
 		}
-		else {
-			// check if local is in the line
-			string local = "local";
-			size_t found2 = newLine.find(local);
-            if (found2 != string::npos) { // if it is, get file name after local.
-                // read string until end
-                // read backwards until first space
-                
-				// create dataholder object
-				// insert into hashtable
-			}
-			else {
-				// get file name after remote
-				// create dataholder object
-				// insert into hashtable
-            }
+        // read backwards until first space
+        while (*line != ' ') {
+            line--;
         }
-        
-        // if not, check if local is in the line
-        // if it is, get file name after local.
-        // if not, get file name after remote.
-
-
+        // read forwards until first space and save it as link
+        char* link = new char[newLine.length() + 1]; 
+        int count = -1;
+        do {
+            count++;
+			line++;
+            link[count] = *line;
+		} while (*line != ' ' && *line != '\0');
+        link--;
+        link[count]= '\0';
+            
+        string linkString(link);
+        // create dataholder object
+        DataHolder data(linkString);
+		// insert into hashtable
+        hashTable.insert(data);
     }
     return 0;
 }
