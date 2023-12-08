@@ -123,67 +123,51 @@ void HashTable::printHashTable() {
 }
 
 int main() {
-    // test case: SUCCESS
-    HashTable hashTable(1001);
-
-    //DataHolder data1("file1");
-    //DataHolder data2("file2");
-    //DataHolder data3("file3");
-    //DataHolder data4("file1");
-
-    //hashTable.insert(data1);
-    //hashTable.insert(data2);
-    //hashTable.insert(data3);
-    //hashTable.insert(data4);
-
-    //hashTable.printHashTable();
-    
-
+    HashTable hashTable(19999);
     // Read from the text file
     string newLine;
     ifstream MyReadFile("access_log");
 
     // Use a while loop together with the getline() function to read the file line by line
-    while (getline(MyReadFile, newLine)) {
-        // each line get filename, create dataholder object, insert into hashtable
-        // first extract filename from line
-
-        // there are three different forms of information in the log file
-        // average case is that file name is after GET
-        // second case is that file name is after local
-        // third case is that file name is after everything in remote situation
-
-
-        // PSEUDOCODE
+    while (getline(MyReadFile, newLine)) {  
         // first, check if GET is in the line
+        string get = "GET";
+        size_t found = newLine.find(get);
+        if (found != string::npos) {
+            cout << newLine << endl;
+            // get file name after get
+            char* line = new char[newLine.length() + 1];
+            strcpy_s(line,newLine.size()+1, newLine.c_str());
+            // read until first dot (.)
+            while (*line != '.') {
+                line++;
+            }
+            // read backwards until first space
+            while (*line != ' ') {
+                line--;
+            }
+            // read forwards until first space and save it as link
+            char* link = new char[newLine.length() + 1];
+            int count = 0;
+            line++;
+            while (*line != ' ' && *line != '\0') {
+                link[count] = *line;
+				count++;
+				line++;
+			}
+            link--;
+            link[count] = '\0';
 
-        // get file name after get
-        char* line = new char[newLine.length() + 1];
-        strcpy(line, newLine.c_str());
-        // read until first dot (.)
-        while (*line != '.') {
-			line++;
-		}
-        // read backwards until first space
-        while (*line != ' ') {
-            line--;
+            string linkString(link);
+            // create dataholder object
+            DataHolder data(linkString);
+            // insert into hashtable
+            hashTable.insert(data);
         }
-        // read forwards until first space and save it as link
-        char* link = new char[newLine.length() + 1]; 
-        int count = -1;
-        do {
-            count++;
-			line++;
-            link[count] = *line;
-		} while (*line != ' ' && *line != '\0');
-        link--;
-        link[count]= '\0';
-            
-        string linkString(link);
-        // create dataholder object
-        DataHolder data(linkString);
-		// insert into hashtable
-        hashTable.insert(data);
+        else
+            continue;
     }
+
+    cout << "done" << endl;
     return 0;
 }
