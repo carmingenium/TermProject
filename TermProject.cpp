@@ -28,6 +28,9 @@ public:
     void setName(string name) {
 		fileName = name;
 	}
+    void incrementVisit() {
+        numberOfVisit += 1;
+    }
 private:
     string fileName;
     int numberOfVisit;
@@ -41,7 +44,7 @@ public:
     void insert(DataHolder data);
     bool search(DataHolder data);
     void remove(DataHolder data);
-    void printHashTable();
+    void printTop10();
 
 private:
     DataHolder* table;
@@ -70,10 +73,10 @@ void HashTable::insert(DataHolder data) {
     }
     // if table is not full, insert by linear probing
     int index = hashFunction(data.getName());
-    // while table[index] is not empty ("" and null) keep probing
-    while (table[index].getName() != "") { // && table[index] != NULL !!!!!!!!!!!!!!!!!!!!!!!! delete later
-        if (table[index].getName() == data.getName()) { // if data is already in table, increment visit count
-        	table[index].setVisit(table[index].getVisit() + 1);
+    // while table[index] is not empty ("") keep probing
+    while (table[index].getName() != "") {
+        if (table[index].getName() ==  data.getName()) { // if data is already in table, increment visit count // this doesnt work !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        	table[index].incrementVisit();
         	return;
         }
         else {
@@ -94,25 +97,28 @@ bool HashTable::search(DataHolder data) {
 		if (index == size) { // if index is out of bounds, wrap around
         	index = 0;
         }
-		if (table[index].getName() == "" ) { // if table[index] is empty, key is not in table // || table[index] == NULL !!!!!!!!!!!!!!!!!!!!! delete later
+		if (table[index].getName() == "" ) { // if table[index] is empty, key is not in table
         	return false;
         }
 	}
     return table[index].getName() == data.getName();
 }
 
+// not really needed, could be removed anytime !!!!!!!!!!!!!!!!!!!!!!!!!!!
 void HashTable::remove(DataHolder data) {
+    
     int index = hashFunction(data.getName());
     table[index].setName("");
     table[index].setVisit(0);
     count -= 1;
 }
 
-void HashTable::printHashTable() {
+// need to change this function to show only the top 10 most visited files !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+void HashTable::printTop10() {
+    // visit every element in the table
     for (int i = 0; i < size; i++) {
-        cout << i << ": ";
         if (table[i].getName() == "") {
-            cout << "EMPTY";
+            // if empty do nothing
         }
         else {
             cout << table[i].getName() << endl;
@@ -123,50 +129,103 @@ void HashTable::printHashTable() {
 }
 
 int main() {
+    // create my hash table
     HashTable hashTable(19999);
     // Read from the text file
     string newLine;
-    ifstream MyReadFile("access_log");
-
+    ifstream logFile("access_log");
     // Use a while loop together with the getline() function to read the file line by line
-    while (getline(MyReadFile, newLine)) {  
+    // Inserting into my hash table.
+   // while (getline(logFile, newLine)) {  
+   //     // first, check if GET is in the line
+   //     string get = "GET";
+   //     size_t found = newLine.find(get);
+   //     if (found != string::npos) {
+   //         // get file name after get
+   //         char* line = new char[newLine.length() + 1];
+   //         strcpy_s(line,newLine.size()+1, newLine.c_str());
+   //         // read until first dot (.)
+   //         while (*line != '.') {
+   //             line++;
+   //         }
+   //         // read backwards until first space
+   //         while (*line != ' ') {
+   //             line--;
+   //         }
+   //         // read forwards until first space and save it as link
+   //         char* link = new char[newLine.length() + 1];
+   //         int count = 0;
+   //         line++;
+   //         while (*line != ' ' && *line != '\0') {
+   //             link[count] = *line;
+			//	count++;
+			//	line++;
+			//}
+   //         link--;
+   //         link[count] = '\0';
+
+   //         string linkString(link);
+   //         // create dataholder object
+   //         DataHolder data(linkString);
+   //         // insert into hashtable
+   //         hashTable.insert(data);
+   //         cout << data.getName() << " - visits: " << data.getVisit() << endl;
+   //     }
+   //     else
+   //         continue;
+   // }
+
+    // create unordered map to store file names and their visit count
+    unordered_map<int, std::string> hashTable2;
+
+    int itemCounter = 0; // to test if insertion works
+    // read from the text file
+    string newLine2;
+    ifstream logFile2("access_log");
+    // use a while loop together with the getline() function to read the file line by line
+    // inserting into my unordered map
+    while (getline(logFile2, newLine2)) {
         // first, check if GET is in the line
-        string get = "GET";
-        size_t found = newLine.find(get);
+		string get = "GET";
+		size_t found = newLine2.find(get);
         if (found != string::npos) {
-            cout << newLine << endl;
-            // get file name after get
-            char* line = new char[newLine.length() + 1];
-            strcpy_s(line,newLine.size()+1, newLine.c_str());
-            // read until first dot (.)
+			// get file name after get
+			char* line = new char[newLine2.length() + 1];
+			strcpy_s(line, newLine2.size() + 1, newLine2.c_str());
+			// read until first dot (.)
             while (*line != '.') {
-                line++;
-            }
-            // read backwards until first space
+				line++;
+			}
+			// read backwards until first space
             while (*line != ' ') {
-                line--;
-            }
-            // read forwards until first space and save it as link
-            char* link = new char[newLine.length() + 1];
-            int count = 0;
-            line++;
+				line--;
+			}
+			// read forwards until first space and save it as link
+			char* link = new char[newLine2.length() + 1];
+			int count = 0;
+			line++;
             while (*line != ' ' && *line != '\0') {
-                link[count] = *line;
+				link[count] = *line;
 				count++;
 				line++;
 			}
-            link--;
-            link[count] = '\0';
+			link--;
+			link[count] = '\0';
 
-            string linkString(link);
-            // create dataholder object
-            DataHolder data(linkString);
-            // insert into hashtable
-            hashTable.insert(data);
-        }
-        else
-            continue;
-    }
+			string linkString(link);
+			// create dataholder object
+			DataHolder data(linkString);
+			// insert into unordered map
+            // check how this works, I might need to change it in a way that it first gets value from hashtable two and then increments it and then puts it back in the hashtable
+			hashTable2.insert({ data.getVisit(), data.getName() });
+            
+
+		}
+		else
+			continue;
+	}
+
+
 
     cout << "done" << endl;
     return 0;
