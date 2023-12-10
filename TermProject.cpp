@@ -16,6 +16,10 @@ public:
         fileName = name;
 		numberOfVisit = 1;
     }
+    DataHolder(string name, int visit) {
+        fileName = name;
+        numberOfVisit = visit;
+    }
     int getVisit() {
 		return numberOfVisit;
 	}
@@ -128,6 +132,21 @@ void HashTable::printTop10() {
     }
 }
 
+void unOrderedMapInsert(unordered_map<int, std::string> table, DataHolder data) {
+    // first check if data is already in the table
+    // if it is, increment the int value by 1
+    // if it is not, insert it into the table with int value 1
+    for (auto& x : table) {
+        if (x.second == data.getName()) {
+            DataHolder temp= DataHolder(x.second, x.first+1);
+            table.erase(x.first);
+            table.insert({ temp.getVisit(), temp.getName() });
+			return;
+		}  
+	}
+    table.insert({ 1, data.getName() });
+    return;
+}
 int main() {
     // create my hash table
     HashTable hashTable(19999);
@@ -163,7 +182,6 @@ int main() {
 			//}
    //         link--;
    //         link[count] = '\0';
-
    //         string linkString(link);
    //         // create dataholder object
    //         DataHolder data(linkString);
@@ -216,17 +234,11 @@ int main() {
 			// create dataholder object
 			DataHolder data(linkString);
 			// insert into unordered map
-            // check how this works, I might need to change it in a way that it first gets value from hashtable two and then increments it and then puts it back in the hashtable
-			hashTable2.insert({ data.getVisit(), data.getName() });
-            
-
+            unOrderedMapInsert(hashTable2,data);
 		}
 		else
 			continue;
 	}
-
-
-
     cout << "done" << endl;
     return 0;
 }
