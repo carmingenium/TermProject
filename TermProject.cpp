@@ -120,16 +120,32 @@ void HashTable::remove(DataHolder data) {
 // need to change this function to show only the top 10 most visited files !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void HashTable::printTop10() {
     // visit every element in the table
+    DataHolder* top10 = new DataHolder[10];
+    for (int i = 0; i < 10; i++) {
+        top10[i] = DataHolder();
+    }
     for (int i = 0; i < size; i++) {
         if (table[i].getName() == "") {
             // if empty do nothing
         }
         else {
-            cout << table[i].getName() << endl;
-            cout << table[i].getVisit() << endl;
+            // check for each element in top10 that current elements visit amount is higher than that element
+            for (int j = 0; j < 10; j++) {
+                if (table[i].getVisit() > top10[j].getVisit()) {
+					// if it is, shift the elements in top10 down by 1 and insert current element into top10
+                    for (int k = 9; k > j; k--) {
+						top10[k] = top10[k - 1];
+					}
+					top10[j] = table[i];
+					break;
+				}
+            }
         }
-        cout << endl;
     }
+    cout << "Top 10 visited sites: " << endl;
+    for (int i = 0; i < 10; i++) {
+		cout << top10[i].getName() << " - visits: " << top10[i].getVisit() << endl;
+	}
 }
 
 void unOrderedMapInsert(unordered_map<int, std::string> table, DataHolder data) {
@@ -155,43 +171,42 @@ int main() {
     ifstream logFile("access_log");
     // Use a while loop together with the getline() function to read the file line by line
     // Inserting into my hash table.
-   // while (getline(logFile, newLine)) {  
-   //     // first, check if GET is in the line
-   //     string get = "GET";
-   //     size_t found = newLine.find(get);
-   //     if (found != string::npos) {
-   //         // get file name after get
-   //         char* line = new char[newLine.length() + 1];
-   //         strcpy_s(line,newLine.size()+1, newLine.c_str());
-   //         // read until first dot (.)
-   //         while (*line != '.') {
-   //             line++;
-   //         }
-   //         // read backwards until first space
-   //         while (*line != ' ') {
-   //             line--;
-   //         }
-   //         // read forwards until first space and save it as link
-   //         char* link = new char[newLine.length() + 1];
-   //         int count = 0;
-   //         line++;
-   //         while (*line != ' ' && *line != '\0') {
-   //             link[count] = *line;
-			//	count++;
-			//	line++;
-			//}
-   //         link--;
-   //         link[count] = '\0';
-   //         string linkString(link);
-   //         // create dataholder object
-   //         DataHolder data(linkString);
-   //         // insert into hashtable
-   //         hashTable.insert(data);
-   //         cout << data.getName() << " - visits: " << data.getVisit() << endl;
-   //     }
-   //     else
-   //         continue;
-   // }
+    while (getline(logFile, newLine)) {  
+        // first, check if GET is in the line
+        string get = "GET";
+        size_t found = newLine.find(get);
+        if (found != string::npos) {
+            // get file name after get
+            char* line = new char[newLine.length() + 1];
+            strcpy_s(line,newLine.size()+1, newLine.c_str());
+            // read until first dot (.)
+            while (*line != '.') {
+                line++;
+            }
+            // read backwards until first space
+            while (*line != ' ') {
+                line--;
+            }
+            // read forwards until first space and save it as link
+            char* link = new char[newLine.length() + 1];
+            int count = 0;
+            line++;
+            while (*line != ' ' && *line != '\0') {
+                link[count] = *line;
+				count++;
+				line++;
+			}
+            link--;
+            link[count] = '\0';
+            string linkString(link);
+            // create dataholder object
+            DataHolder data(linkString);
+            // insert into hashtable
+            hashTable.insert(data);
+        }
+        else
+            continue;
+    }
 
     // create unordered map to store file names and their visit count
     unordered_map<int, std::string> hashTable2;
@@ -202,43 +217,45 @@ int main() {
     ifstream logFile2("access_log");
     // use a while loop together with the getline() function to read the file line by line
     // inserting into my unordered map
-    while (getline(logFile2, newLine2)) {
-        // first, check if GET is in the line
-		string get = "GET";
-		size_t found = newLine2.find(get);
-        if (found != string::npos) {
-			// get file name after get
-			char* line = new char[newLine2.length() + 1];
-			strcpy_s(line, newLine2.size() + 1, newLine2.c_str());
-			// read until first dot (.)
-            while (*line != '.') {
-				line++;
-			}
-			// read backwards until first space
-            while (*line != ' ') {
-				line--;
-			}
-			// read forwards until first space and save it as link
-			char* link = new char[newLine2.length() + 1];
-			int count = 0;
-			line++;
-            while (*line != ' ' && *line != '\0') {
-				link[count] = *line;
-				count++;
-				line++;
-			}
-			link--;
-			link[count] = '\0';
+ //   while (getline(logFile2, newLine2)) {
+ //       // first, check if GET is in the line
+	//	string get = "GET";
+	//	size_t found = newLine2.find(get);
+ //       if (found != string::npos) {
+	//		// get file name after get
+	//		char* line = new char[newLine2.length() + 1];
+	//		strcpy_s(line, newLine2.size() + 1, newLine2.c_str());
+	//		// read until first dot (.)
+ //           while (*line != '.') {
+	//			line++;
+	//		}
+	//		// read backwards until first space
+ //           while (*line != ' ') {
+	//			line--;
+	//		}
+	//		// read forwards until first space and save it as link
+	//		char* link = new char[newLine2.length() + 1];
+	//		int count = 0;
+	//		line++;
+ //           while (*line != ' ' && *line != '\0') {
+	//			link[count] = *line;
+	//			count++;
+	//			line++;
+	//		}
+	//		link--;
+	//		link[count] = '\0';
+	//		string linkString(link);
+	//		// create dataholder object
+	//		DataHolder data(linkString);
+	//		// insert into unordered map
+ //           unOrderedMapInsert(hashTable2,data);
+	//	}
+	//	else
+	//		continue;
+	//},
 
-			string linkString(link);
-			// create dataholder object
-			DataHolder data(linkString);
-			// insert into unordered map
-            unOrderedMapInsert(hashTable2,data);
-		}
-		else
-			continue;
-	}
+    // print top 10 most visited files
+    hashTable.printTop10();
     cout << "done" << endl;
     return 0;
 }
