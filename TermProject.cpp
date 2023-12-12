@@ -168,7 +168,7 @@ int main() {
     HashTable hashTable(19999);
     // Read from the text file
     string newLine;
-    ifstream logFile("access_log");
+    ifstream logFile("access_log_test.txt");
     // Use a while loop together with the getline() function to read the file line by line
     // Inserting into my hash table.
     while (getline(logFile, newLine)) {  
@@ -214,7 +214,7 @@ int main() {
     int itemCounter = 0; // to test if insertion works
     // read from the text file
     string newLine2;
-    ifstream logFile2("access_log");
+    ifstream logFile2("access_log_test.txt");
     // use a while loop together with the getline() function to read the file line by line
     // inserting into my unordered map
  //   while (getline(logFile2, newLine2)) {
