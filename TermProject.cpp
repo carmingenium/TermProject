@@ -287,9 +287,7 @@ int main() {
 
     // print top 10 most visited files
     hashTable.printTop10();
-
+    cout << "First table done" << endl;
     unOrderedMapTop10(hashTable2);
-
-    cout << "done" << endl;
     return 0;
 }
