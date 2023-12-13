@@ -198,51 +198,53 @@ int main() {
     // create my hash table
     HashTable hashTable(19999);
     // Read from the text file
-    string newLine;
-    ifstream logFile("access_log_test.txt");
+    // string newLine;
+    // ifstream logFile("access_log_test.txt");
     // Use a while loop together with the getline() function to read the file line by line
     // Inserting into my hash table.
-    while (getline(logFile, newLine)) {  
-        // first, check if GET is in the line
-        string get = "GET";
-        size_t found = newLine.find(get);
-        if (found != string::npos) {
-            // get file name after get
-            char* line = new char[newLine.length() + 1];
-            strcpy_s(line,newLine.size()+1, newLine.c_str());
-            // read until first dot (.)
-            while (*line != '.') {
-                line++;
-            }
-            // read backwards until first space
-            while (*line != ' ') {
-                line--;
-            }
-            // read forwards until first space and save it as link
-            char* link = new char[newLine.length() + 1];
-            int count = 0;
-            line++;
-            while (*line != ' ' && *line != '\0') {
-                link[count] = *line;
-				count++;
-				line++;
-			}
-            link--;
-            link[count] = '\0';
-            string linkString(link);
-            // create dataholder object
-            DataHolder data(linkString);
-            // insert into hashtable
-            hashTable.insert(data);
-        }
-        else
-            continue;
-    }
+   // while (getline(logFile, newLine)) {  
+   //     // first, check if GET is in the line
+   //     string get = "GET";
+   //     size_t found = newLine.find(get);
+   //     if (found != string::npos) {
+   //         // get file name after get
+   //         char* line = new char[newLine.length() + 1];
+   //         strcpy_s(line,newLine.size()+1, newLine.c_str());
+   //         // read until first dot (.)
+   //         while (*line != '.') {
+   //             line++;
+   //         }
+   //         // read backwards until first space
+   //         while (*line != ' ') {
+   //             line--;
+   //         }
+   //         // read forwards until first space and save it as link
+   //         char* link = new char[newLine.length() + 1];
+   //         int count = 0;
+   //         line++;
+   //         while (*line != ' ' && *line != '\0') {
+   //             link[count] = *line;
+			//	count++;
+			//	line++;
+			//}
+   //         link--;
+   //         link[count] = '\0';
+   //         string linkString(link);
+   //         // create dataholder object
+   //         DataHolder data(linkString);
+   //         // insert into hashtable
+   //         hashTable.insert(data);
+   //     }
+   //     else
+   //         continue;
+   // }
+
+    // FIRST TABLE END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // create unordered map to store file names and their visit count
     unordered_map<int, std::string> hashTable2;
 
-    int itemCounter = 0; // to test if insertion works
+    
     // read from the text file
     string newLine2;
     ifstream logFile2("access_log_test.txt");
@@ -279,14 +281,17 @@ int main() {
 			// create dataholder object
 			DataHolder data(linkString);
 			// insert into unordered map
-            unOrderedMapInsert(hashTable2,data);
+            hashTable2.insert({ 1, data.getName() });
+            // unOrderedMapInsert(hashTable2,data);
 		}
 		else
 			continue;
 	}
 
+    // SECOND TABLE END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     // print top 10 most visited files
-    hashTable.printTop10();
+    // hashTable.printTop10();
     cout << "First table done" << endl;
     unOrderedMapTop10(hashTable2);
     return 0;
