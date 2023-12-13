@@ -198,46 +198,46 @@ int main() {
     // create my hash table
     HashTable hashTable(19999);
     // Read from the text file
-    // string newLine;
-    // ifstream logFile("access_log_test.txt");
-    // Use a while loop together with the getline() function to read the file line by line
-    // Inserting into my hash table.
-   // while (getline(logFile, newLine)) {  
-   //     // first, check if GET is in the line
-   //     string get = "GET";
-   //     size_t found = newLine.find(get);
-   //     if (found != string::npos) {
-   //         // get file name after get
-   //         char* line = new char[newLine.length() + 1];
-   //         strcpy_s(line,newLine.size()+1, newLine.c_str());
-   //         // read until first dot (.)
-   //         while (*line != '.') {
-   //             line++;
-   //         }
-   //         // read backwards until first space
-   //         while (*line != ' ') {
-   //             line--;
-   //         }
-   //         // read forwards until first space and save it as link
-   //         char* link = new char[newLine.length() + 1];
-   //         int count = 0;
-   //         line++;
-   //         while (*line != ' ' && *line != '\0') {
-   //             link[count] = *line;
-			//	count++;
-			//	line++;
-			//}
-   //         link--;
-   //         link[count] = '\0';
-   //         string linkString(link);
-   //         // create dataholder object
-   //         DataHolder data(linkString);
-   //         // insert into hashtable
-   //         hashTable.insert(data);
-   //     }
-   //     else
-   //         continue;
-   // }
+    string newLine;
+    ifstream logFile("access_log_test.txt");
+     // Use a while loop together with the getline() function to read the file line by line
+     // Inserting into my hash table.
+    while (getline(logFile, newLine)) {  
+        // first, check if GET is in the line
+        string get = "GET";
+        size_t found = newLine.find(get);
+        if (found != string::npos) {
+            // get file name after get
+            char* line = new char[newLine.length() + 1];
+            strcpy_s(line,newLine.size()+1, newLine.c_str());
+            // read until first dot (.)
+            while (*line != '.') {
+                line++;
+            }
+            // read backwards until first space
+            while (*line != ' ') {
+                line--;
+            }
+            // read forwards until first space and save it as link
+            char* link = new char[newLine.length() + 1];
+            int count = 0;
+            line++;
+            while (*line != ' ' && *line != '\0') {
+                link[count] = *line;
+				count++;
+				line++;
+			}
+            link--;
+            link[count] = '\0';
+            string linkString(link);
+            // create dataholder object
+            DataHolder data(linkString);
+            // insert into hashtable
+            hashTable.insert(data);
+        }
+        else
+            continue;
+    }
 
     // FIRST TABLE END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
