@@ -5,6 +5,7 @@ using namespace std;
 #include <unordered_map>
 #include <string>
 #include <fstream>
+#include <chrono>
 
 class DataHolder {
 public:
@@ -148,29 +149,32 @@ void HashTable::printTop10() {
 	}
 }
 
-void unOrderedMapInsert(unordered_map<int, std::string> table, DataHolder data) {
+unordered_map<int, std::pair<int, string>> unOrderedMapInsert(unordered_map<int, std::pair<int, string> > table, DataHolder data, int counter) {
     // first check if data is already in the table
     // if it is, increment the int value by 1
     // if it is not, insert it into the table with int value 1
     for (auto& x : table) {
-        if (x.second == data.getName()) {
-            DataHolder temp= DataHolder(x.second, x.first+1);
+        if (x.second.second == data.getName()) {
+            DataHolder temp = DataHolder(x.second.second, x.second.first+1); // increment visit count
+            int key = x.first;
             table.erase(x.first);
-            table.insert({ temp.getVisit(), temp.getName() });
-			return;
+            pair<int, string> p = make_pair(temp.getVisit(), temp.getName());
+            table.insert({ key, p });
+			return table;
 		}  
 	}
-    table.insert({ 1, data.getName() });
-    return;
+    pair <int, string> p2 = make_pair(1, data.getName());
+    table.insert({counter , p2 });
+    return table;
 }
-void unOrderedMapTop10(unordered_map<int, string> table) {
+void unOrderedMapTop10(unordered_map<int, std::pair<int, string> > table) {
 	// visit every element in the table
 	DataHolder* top10 = new DataHolder[10];
     for (int i = 0; i < 10; i++) {
 		top10[i] = DataHolder();
 	}
     for (auto& x : table) {
-        if (x.second == "") {
+        if (x.second.second == "") {
 			// if empty do nothing
 		}
         else {
@@ -181,7 +185,7 @@ void unOrderedMapTop10(unordered_map<int, string> table) {
                     for (int k = 9; k > j; k--) {
 						top10[k] = top10[k - 1];
 					}
-					top10[j] = DataHolder(x.second, x.first);
+					top10[j] = DataHolder(x.second.second, x.second.first);
 					break;
 				}
 			}
@@ -195,6 +199,8 @@ void unOrderedMapTop10(unordered_map<int, string> table) {
 
 }
 int main() {
+    // start timer1
+    auto start = chrono::high_resolution_clock::now();
     // create my hash table
     HashTable hashTable(19999);
     // Read from the text file
@@ -207,7 +213,7 @@ int main() {
         string get = "GET";
         size_t found = newLine.find(get);
         if (found != string::npos) {
-            // get file name after get
+            // set up char array to read the line character by character
             char* line = new char[newLine.length() + 1];
             strcpy_s(line,newLine.size()+1, newLine.c_str());
             // read until first dot (.)
@@ -239,10 +245,21 @@ int main() {
             continue;
     }
 
+     // print top 10 most visited files
+     hashTable.printTop10();
+
+
+    // stop timer1
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    cout << "Time taken by the actions with hashtable1: " << duration.count() << " microseconds" << endl;
     // FIRST TABLE END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+
+    // start timer2
+    auto start2 = chrono::high_resolution_clock::now();
     // create unordered map to store file names and their visit count
-    unordered_map<int, std::string> hashTable2;
+    unordered_map<int, std::pair<int, string> > hashTable2;
 
     
     // read from the text file
@@ -250,6 +267,7 @@ int main() {
     ifstream logFile2("access_log_test.txt");
     // use a while loop together with the getline() function to read the file line by line
     // inserting into my unordered map
+    int hashCounter = 0;
     while (getline(logFile2, newLine2)) {
         // first, check if GET is in the line
 		string get = "GET";
@@ -281,18 +299,23 @@ int main() {
 			// create dataholder object
 			DataHolder data(linkString);
 			// insert into unordered map
-            hashTable2.insert({ 1, data.getName() });
-            // unOrderedMapInsert(hashTable2,data);
+            // hashTable2.insert({ 3, "test3"}); // INSERTION ONLY WORKS IF THE KEY IS NOT ALREADY IN THE TABLE
+            hashTable2 = unOrderedMapInsert(hashTable2,data, hashCounter);
+            hashCounter++;
 		}
 		else
 			continue;
 	}
 
-    // SECOND TABLE END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
     // print top 10 most visited files
-    // hashTable.printTop10();
-    cout << "First table done" << endl;
     unOrderedMapTop10(hashTable2);
+    
+    auto stop2 = chrono::high_resolution_clock::now();
+    auto duration2 = chrono::duration_cast<chrono::microseconds>(stop2 - start2);
+    cout << "Time taken by the actions with hashtable2: " << duration2.count() << " microseconds" << endl;
+
+    
+
+    // SECOND TABLE END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     return 0;
 }
